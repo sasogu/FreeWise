@@ -1,0 +1,9 @@
+{# Scale the whole UI on top of the responsive 14/15/16px base defined in
+   input.css, so the Text Size setting in Settings enlarges everything —
+   including pages that do not extend base.html (review, book detail, …). #}
+{% set font_scale = (settings.font_scale if settings else 100) / 100 %}
+<style>
+    html { font-size: calc(14px * {{ font_scale }}); }
+    @media (min-width: 640px) { html { font-size: calc(15px * {{ font_scale }}); } }
+    @media (min-width: 768px) { html { font-size: calc(16px * {{ font_scale }}); } }
+</style>
