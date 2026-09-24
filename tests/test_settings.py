@@ -80,6 +80,26 @@ class TestUpdateSettings:
         settings = db.exec(select(Settings)).first()
         assert settings.theme == "dark"
 
+    def test_update_font_scale(self, client, db):
+        client.post("/settings/ui", data={
+            "daily_review_count": "5",
+            "highlight_recency": "5",
+            "theme": "light",
+            "font_scale": "130",
+        })
+        settings = db.exec(select(Settings)).first()
+        assert settings.font_scale == 130
+
+    def test_invalid_font_scale_falls_back_to_default(self, client, db):
+        client.post("/settings/ui", data={
+            "daily_review_count": "5",
+            "highlight_recency": "5",
+            "theme": "light",
+            "font_scale": "999",
+        })
+        settings = db.exec(select(Settings)).first()
+        assert settings.font_scale == 100
+
     def test_success_message(self, client):
         resp = client.post("/settings/ui", data={
             "daily_review_count": "5",

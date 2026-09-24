@@ -80,6 +80,7 @@ class Settings(SQLModel, table=True):
     daily_review_count: int = Field(default=5)
     highlight_recency: int = Field(default=5)  # 0=prefer older, 5=neutral, 10=prefer newer
     theme: str = Field(default="light")
+    font_scale: int = Field(default=100)  # UI scale percent: 90=Small, 100=Normal, 115=Large, 130=Extra large
     
     def __repr__(self) -> str:
         return f"Settings(id={self.id}, daily_review_count={self.daily_review_count}, highlight_recency={self.highlight_recency})"

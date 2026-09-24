@@ -34,6 +34,11 @@ def get_settings(session: Session):
         session.add(settings)
         session.commit()
         session.refresh(settings)
+    if settings.font_scale is None:
+        settings.font_scale = 100
+        session.add(settings)
+        session.commit()
+        session.refresh(settings)
     return settings
 
 

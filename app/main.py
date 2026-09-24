@@ -10,6 +10,21 @@ from app.db import get_engine, get_settings, get_current_streak
 from app.models import SQLModel
 from app.routers import highlights, settings, importer, library, dashboard, export
 
+def _migrate_settings_font_scale(engine):
+    """Add the font_scale column to pre-existing databases.
+
+    ``create_all`` only creates missing tables, it never alters existing ones,
+    so databases created before the text-size setting need an explicit
+    ``ALTER TABLE``.
+    """
+    with engine.begin() as conn:
+        columns = {row[1] for row in conn.exec_driver_sql("PRAGMA table_info(settings)")}
+        if columns and "font_scale" not in columns:
+            conn.exec_driver_sql(
+                "ALTER TABLE settings ADD COLUMN font_scale INTEGER NOT NULL DEFAULT 100"
+            )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Create database tables on startup."""
@@ -18,6 +33,7 @@ async def lifespan(app: FastAPI):
     os.makedirs("./app/static/uploads/covers", exist_ok=True)
     engine = get_engine()
     SQLModel.metadata.create_all(engine)
+    _migrate_settings_font_scale(engine)
     
     # Initialize default settings if not exists
     from sqlmodel import Session

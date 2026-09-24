@@ -36,6 +36,7 @@ async def update_settings_ui(
     daily_review_count: int = Form(...),
     highlight_recency: int = Form(...),
     theme: str = Form(...),
+    font_scale: int = Form(100),
     session: Session = Depends(get_session)
 ):
     """Update settings from form submission."""
@@ -44,6 +45,7 @@ async def update_settings_ui(
     settings.daily_review_count = max(1, min(15, daily_review_count))
     settings.highlight_recency = max(0, min(10, highlight_recency))
     settings.theme = theme
+    settings.font_scale = font_scale if font_scale in (90, 100, 115, 130) else 100
     
     session.add(settings)
     session.commit()
