@@ -45,7 +45,7 @@ async def update_settings_ui(
     settings.daily_review_count = max(1, min(15, daily_review_count))
     settings.highlight_recency = max(0, min(10, highlight_recency))
     settings.theme = theme
-    settings.font_scale = font_scale if font_scale in (90, 100, 115, 130) else 100
+    settings.font_scale = font_scale if font_scale in (90, 100, 130, 160) else 100
     
     session.add(settings)
     session.commit()
