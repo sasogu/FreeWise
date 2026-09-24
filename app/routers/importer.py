@@ -1,7 +1,7 @@
 import csv
 import io
 import base64
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, Form
 from fastapi.responses import HTMLResponse
@@ -38,9 +38,12 @@ def parse_readwise_datetime(dt_str: str) -> Optional[datetime]:
     for fmt in formats:
         try:
             parsed = datetime.strptime(dt_str.strip(), fmt)
-            # Convert timezone-aware datetime to UTC naive datetime
-            if parsed.tzinfo is not None:
-                parsed = parsed.replace(tzinfo=None)
+            # Store timezone-aware UTC datetimes. SQLAlchemy rejects naive
+            # values for the timezone-aware columns used by FreeWise.
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+            else:
+                parsed = parsed.astimezone(timezone.utc)
             return parsed
         except ValueError:
             continue

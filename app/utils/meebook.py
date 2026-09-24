@@ -6,7 +6,7 @@ can be written straight into the database — no intermediate CSV step.
 """
 
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Optional
 
 from bs4 import BeautifulSoup
@@ -39,7 +39,7 @@ def parse_date(date_str: str) -> Optional[datetime]:
     try:
         if len(date_str) == 10:
             date_str += " 00:00"
-        return datetime.strptime(date_str, "%Y-%m-%d %H:%M")
+        return datetime.strptime(date_str, "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
     except ValueError:
         return None
 

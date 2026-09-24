@@ -36,6 +36,7 @@ venv.bak/
 
 # Data
 /data
+/backups/
 
 # IDE
 .vscode/

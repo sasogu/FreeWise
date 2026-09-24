@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from typing import Optional, List, Dict
 from collections import defaultdict
 import math
@@ -208,7 +208,7 @@ def get_review_highlights(
     if n is None:
         n = settings.daily_review_count if settings else 5
     
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
 
     # Fetch all active highlights (exclude discarded)
     statement = (
@@ -338,7 +338,7 @@ async def ui_review(
         reset == "true" or
         not review_session_id or
         review_session_id not in review_sessions or
-        (datetime.utcnow() - review_sessions[review_session_id]["timestamp"]).total_seconds() > 86400  # 24 hours
+        (datetime.now(timezone.utc) - review_sessions[review_session_id]["timestamp"]).total_seconds() > 86400  # 24 hours
     )
     
     if should_create_new:
@@ -348,7 +348,7 @@ async def ui_review(
         
         # Create new session
         new_session_id = str(uuid.uuid4())
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         review_sessions[new_session_id] = {
             "highlight_ids": highlight_ids,
             "current_index": 0,
@@ -427,7 +427,7 @@ async def ui_review_next(
     # Mark the current highlight as reviewed
     current_highlight = session.get(Highlight, current_id)
     if current_highlight:
-        current_highlight.last_reviewed_at = datetime.utcnow()
+        current_highlight.last_reviewed_at = datetime.now(timezone.utc)
         current_highlight.review_count = (current_highlight.review_count or 0) + 1
         session.add(current_highlight)
         session.commit()
@@ -454,7 +454,7 @@ async def ui_review_next(
             stmt = select(ReviewSession).where(ReviewSession.session_uuid == review_session_id)
             db_review_session = session.exec(stmt).first()
             if db_review_session:
-                db_review_session.completed_at = datetime.utcnow()
+                db_review_session.completed_at = datetime.now(timezone.utc)
                 db_review_session.is_completed = True
                 session.add(db_review_session)
                 session.commit()
@@ -810,7 +810,7 @@ async def discard_highlight_html(
             stmt = select(ReviewSession).where(ReviewSession.session_uuid == review_session_id)
             db_review_session = session.exec(stmt).first()
             if db_review_session:
-                db_review_session.completed_at = datetime.utcnow()
+                db_review_session.completed_at = datetime.now(timezone.utc)
                 db_review_session.is_completed = True
                 session.add(db_review_session)
                 session.commit()
@@ -839,4 +839,3 @@ async def discard_highlight_html(
         "request": request,
         "highlight": highlight
     })
-
